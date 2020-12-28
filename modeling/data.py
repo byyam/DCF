@@ -8,6 +8,8 @@ NOTE: Some code taken directly from their documentation. See: https://financialm
 from urllib.request import urlopen
 import json
 
+api_key = 'xxxxx'
+
 def get_jsonparsed_data(url):
     '''
     Fetch url, return parsed json. 
@@ -34,7 +36,10 @@ def get_EV_statement(ticker, period = 'annual'):
     if period == 'annual':
         url = 'https://financialmodelingprep.com/api/v3/enterprise-value/{}'.format(ticker)
     elif period == 'quarter':
-        url = 'https://financialmodelingprep.com/api/v3/enterprise-value/{}?period=quarter'.format(ticker)
+        url = 'https://financialmodelingprep.com/api/v3/enterprise-value/{0}?period=quarter&apikey={1}'.format(ticker, api_key)
+    else:
+        raise ValueError("in get_EV_statement: invalid period")     # may as well throw...
+    print(url)
     return get_jsonparsed_data(url)
 
 #! TODO: maybe combine these with argument flag for which statement, seems pretty redundant tbh
@@ -50,12 +55,13 @@ def get_income_statement(ticker, period = 'annual'):
         parsed company's income statement
     '''
     if period == 'annual':
-        url = 'https://financialmodelingprep.com/api/v3/financials/income-statement/{}'.format(ticker)
+        url = 'https://financialmodelingprep.com/api/v3/income-statement/{}'.format(ticker)
     elif period == 'quarter':
-        url = 'https://financialmodelingprep.com/api/v3/financials/income-statement/{}?period=quarter'.format(ticker)
+        url = 'https://financialmodelingprep.com/api/v3/income-statement/{0}?period=quarter&apikey={1}'.format(ticker, api_key)
     else:
         raise ValueError("in get_income_statement: invalid period")     # may as well throw...
 
+    print(url)
     return get_jsonparsed_data(url)
 
 
@@ -71,12 +77,13 @@ def get_cashflow_statement(ticker, period = 'annual'):
         parsed company's cashflow statement
     '''
     if period == 'annual':
-        url = 'https://financialmodelingprep.com/api/v3/financials/cash-flow-statement/{}'.format(ticker)
+        url = 'https://financialmodelingprep.com/api/v3/cash-flow-statement/{}'.format(ticker)
     elif period == 'quarter':
-        url = 'https://financialmodelingprep.com/api/v3/financials/cash-flow-statement/{}?period=quarter'.format(ticker)
+        url = 'https://financialmodelingprep.com/api/v3/cash-flow-statement/{0}?period=quarter&apikey={1}'.format(ticker, api_key)
     else:
         raise ValueError("in get_cashflow_statement: invalid period")     # may as well throw...
 
+    print(url)
     return get_jsonparsed_data(url)
 
 def get_balance_statement(ticker, period = 'annual'):
@@ -91,12 +98,13 @@ def get_balance_statement(ticker, period = 'annual'):
         parsed company's balance sheet statement
     '''
     if period == 'annual':
-        url = 'https://financialmodelingprep.com/api/v3/financials/balance-sheet-statement/{}'.format(ticker)
+        url = 'https://financialmodelingprep.com/api/v3/balance-sheet-statement/{}'.format(ticker)
     elif period == 'quarter':
-        url = 'https://financialmodelingprep.com/api/v3/financials/balance-sheet-statement/{}?period=quarter'.format(ticker)
+        url = 'https://financialmodelingprep.com/api/v3/balance-sheet-statement/{0}?period=quarter&apikey={1}'.format(ticker, api_key)
     else:
         raise ValueError("in get_balancesheet_statement: invalid period")     # may as well throw...
 
+    print(url)
     return get_jsonparsed_data(url)
 
 def get_stock_price(ticker):
@@ -142,15 +150,18 @@ def get_historical_share_prices(ticker, dates):
     prices = {}
     for date in dates:
         date_start, date_end = date[0:8] + str(int(date[8:]) - 2), date
-        url = 'https://financialmodelingprep.com/api/v3/historical-price-full/{}?from={}&to={}'.format(ticker, date_start, date_end)
+        url = 'https://financialmodelingprep.com/api/v3/historical-price-full/{}?from={}&to={}&apikey={}'.format(ticker, date_start, date_end, api_key)
+        print(url)
+        historical_price_full = get_jsonparsed_data(url)
+        print(historical_price_full)
         try:
-            prices[date_end] = get_jsonparsed_data(url)['historical'][0]['close']
+            prices[date_end] = historical_price_full['historical'][0]['close']
         except IndexError:
             #  RIP nested try catch, so many issues with dates just try a bunch and get within range of earnings release
             try:
-                prices[date_start] = get_jsonparsed_data(url)['historical'][0]['close']
+                prices[date_start] = historical_price_full['historical'][0]['close']
             except IndexError:
-                print(date + ' ', get_jsonparsed_data(url))
+                print(date + ' ', historical_price_full)
 
     return prices
 

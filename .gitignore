@@ -1,3 +1,6 @@
 __pycache__
 .vscode
 _config.yml
+.idea
+venv
+imgs/*

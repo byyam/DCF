@@ -53,9 +53,9 @@ def historical_DCF(ticker, years, forecast, discount_rate, earnings_growth_rate,
     '''
     dcfs = {}
 
-    income_statement = get_income_statement(ticker = ticker, period = interval)['financials'] 
-    balance_statement = get_balance_statement(ticker = ticker, period = interval)['financials']
-    cashflow_statement = get_cashflow_statement(ticker = ticker, period = interval)['financials']
+    income_statement = get_income_statement(ticker = ticker, period = interval)
+    balance_statement = get_balance_statement(ticker = ticker, period = interval)
+    cashflow_statement = get_cashflow_statement(ticker = ticker, period = interval)
     enterprise_value_statement = get_EV_statement(ticker = ticker, period = interval)['enterpriseValues']
 
     if interval == 'quarter':
@@ -143,13 +143,13 @@ def enterprise_value(income_statement, cashflow_statement, balance_statement, pe
         enterprise value
     '''
     # XXX: statements are returned as historical list, 0 most recent
-    ebit = float(income_statement[0]['EBIT'])
-    tax_rate = float(income_statement[0]['Income Tax Expense']) /  \
-               float(income_statement[0]['Earnings before Tax'])
-    non_cash_charges = float(cashflow_statement[0]['Depreciation & Amortization'])
-    cwc = (float(balance_statement[0]['Total assets']) - float(balance_statement[0]['Total non-current assets'])) - \
-          (float(balance_statement[1]['Total assets']) - float(balance_statement[1]['Total non-current assets']))
-    cap_ex = float(cashflow_statement[0]['Capital Expenditure'])
+    ebit = float(income_statement[0]['ebitda'])
+    tax_rate = float(income_statement[0]['incomeTaxExpense']) /  \
+               float(income_statement[0]['incomeBeforeTax'])
+    non_cash_charges = float(cashflow_statement[0]['depreciationAndAmortization'])
+    cwc = (float(balance_statement[0]['totalAssets']) - float(balance_statement[0]['totalNonCurrentAssets'])) - \
+          (float(balance_statement[1]['totalAssets']) - float(balance_statement[1]['totalNonCurrentAssets']))
+    cap_ex = float(cashflow_statement[0]['capitalExpenditure'])
     discount = discount_rate
 
     flows = []
